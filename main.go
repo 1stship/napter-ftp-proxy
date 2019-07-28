@@ -51,7 +51,7 @@ func main() {
 	soracom := &SoracomAdapter{credential: credential, target: target}
 	soracom.GetSoracomToken()
 	destination := &PortMappingDestination{Imsi: target, Port: remotePort}
-	createRequest := &CreatePortMappingRequest{Destination: destination}
+	createRequest := &CreatePortMappingRequest{Destination: destination, TlsRequired: true}
 	portMapping, err := soracom.StartNapter(createRequest)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "fail to start napter")

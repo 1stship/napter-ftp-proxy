@@ -11,7 +11,6 @@ import (
 
 type FTPCommandComm struct {
 	LocalAddress     string
-	Insecure         bool
 	LocalConnection  net.Conn
 	RemoteConnection net.Conn
 	Soracom          *SoracomAdapter
@@ -61,12 +60,11 @@ func (comm *FTPCommandComm) ProcessCommand(command string) string {
 		passivePortLower, _ := strconv.Atoi(passiveParams[5])
 		passivePort := passivePortUpper*256 + passivePortLower
 		destination := &PortMappingDestination{Imsi: comm.Soracom.target, Port: passivePort}
-		createRequest := &CreatePortMappingRequest{Destination: destination, TlsRequired: !comm.Insecure}
+		createRequest := &CreatePortMappingRequest{Destination: destination, TlsRequired: true}
 		portMapping, _ := comm.Soracom.StartNapter(createRequest)
 		dataListner := &FTPDataListener{
 			LocalAddress: comm.LocalAddress,
 			LocalPort:    passivePort,
-			Insecure:     comm.Insecure,
 			Napter:       portMapping,
 			Soracom:      comm.Soracom}
 		dataListner.Start()

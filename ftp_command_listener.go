@@ -11,7 +11,6 @@ import (
 type FTPCommandListener struct {
 	LocalAddress string
 	LocalPort    int
-	Insecure     bool
 	Napter       *PortMapping
 	Soracom      *SoracomAdapter
 }
@@ -30,12 +29,8 @@ func (listener *FTPCommandListener) Start() error {
 				continue
 			}
 			var remoteConnection net.Conn
-			if listener.Insecure {
-				remoteConnection, err = net.Dial("tcp", listener.Napter.Hostname+":"+strconv.Itoa(listener.Napter.Port))
-			} else {
-				tlsConf := &tls.Config{MinVersion: tls.VersionTLS12}
-				remoteConnection, err = tls.Dial("tcp", listener.Napter.Hostname+":"+strconv.Itoa(listener.Napter.Port), tlsConf)
-			}
+			tlsConf := &tls.Config{MinVersion: tls.VersionTLS12}
+			remoteConnection, err = tls.Dial("tcp", listener.Napter.Hostname+":"+strconv.Itoa(listener.Napter.Port), tlsConf)
 
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
@@ -44,7 +39,6 @@ func (listener *FTPCommandListener) Start() error {
 			}
 			ftpCommandComm := &FTPCommandComm{
 				LocalAddress:     listener.LocalAddress,
-				Insecure:         listener.Insecure,
 				LocalConnection:  localConnection,
 				RemoteConnection: remoteConnection,
 				Soracom:          listener.Soracom,

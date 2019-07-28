@@ -12,18 +12,16 @@ import (
 )
 
 func main() {
-	const version = "0.1.0"
+	const version = "0.1.1"
 	dispVersion := false
 	var target string
 	var listenAddress string
 	var localPort int
 	var remotePort int
-	var insecure bool
 	flag.BoolVar(&dispVersion, "v", false, "バージョン表示")
 	flag.BoolVar(&dispVersion, "version", false, "バージョン表示")
 	flag.StringVar(&listenAddress, "listen", "127.0.0.1", "待ち受けIPアドレス")
 	flag.StringVar(&target, "target", "", "接続先のIMSI")
-	flag.BoolVar(&insecure, "insecure", false, "暗号化しない")
 	flag.IntVar(&localPort, "local", 21, "ローカル待ち受けポート")
 	flag.IntVar(&remotePort, "remote", 21, "接続先ポート")
 	flag.Parse()
@@ -53,7 +51,7 @@ func main() {
 	soracom := &SoracomAdapter{credential: credential, target: target}
 	soracom.GetSoracomToken()
 	destination := &PortMappingDestination{Imsi: target, Port: remotePort}
-	createRequest := &CreatePortMappingRequest{Destination: destination, TlsRequired: !insecure}
+	createRequest := &CreatePortMappingRequest{Destination: destination}
 	portMapping, err := soracom.StartNapter(createRequest)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "fail to start napter")
@@ -71,8 +69,7 @@ func main() {
 		LocalAddress: listenAddress,
 		LocalPort:    localPort,
 		Napter:       portMapping,
-		Soracom:      soracom,
-		Insecure:     insecure}
+		Soracom:      soracom}
 
 	err = commandListener.Start()
 	if err != nil {

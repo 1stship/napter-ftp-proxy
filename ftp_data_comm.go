@@ -24,10 +24,13 @@ func (comm *FTPDataComm) ProcessLocalReceiveLoop() {
 	buf := make([]byte, 65536)
 	for {
 		readLen, err := comm.LocalConnection.Read(buf)
-		if err != nil {
+		if err != nil && err.Error() != "EOF" {
 			break
 		}
 		comm.RemoteConnection.Write(buf[:readLen])
+		if err != nil && err.Error() == "EOF" {
+			break
+		}
 	}
 	comm.Close()
 }
@@ -36,10 +39,13 @@ func (comm *FTPDataComm) ProcessRemoteReceiveLoop() {
 	buf := make([]byte, 65536)
 	for {
 		readLen, err := comm.RemoteConnection.Read(buf)
-		if err != nil {
+		if err != nil && err.Error() != "EOF" {
 			break
 		}
 		comm.LocalConnection.Write(buf[:readLen])
+		if err != nil && err.Error() == "EOF" {
+			break
+		}
 	}
 	comm.Close()
 }
